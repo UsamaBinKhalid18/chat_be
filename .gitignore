@@ -1,0 +1,54 @@
+# Django-specific files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.log
+*.pot
+*.pyc
+local.py
+
+# Dependency directories
+venv/
+env/
+pipenv/
+.venv/
+.pyenv/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+*.komodo*
+*~.nib/
+*.swp
+*.swo
+
+# Compiled source code
+*.class
+*.war
+*.ear
+*.jar
+
+# Database files
+*.db
+*.sqlite3
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Environments
+.env
+
+# custom
+pyenv/
+/.idea/

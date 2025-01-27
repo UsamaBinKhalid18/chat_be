@@ -1,0 +1,14 @@
+[flake8]
+exclude = .git,__pycache__,__init__.py,docs/,old/,build/,dist/,venv/,*/migrations/*,.venv/,node_modules/,core/settings/local.py
+max-line-length = 120
+ignore = E203, E266, W503, F403
+max-complexity = 18
+
+[isort]
+line_length = 120
+known_first_party = common_properties
+default_section = THIRDPARTY
+multi_line_output = 3
+include_trailing_comma = True
+force_grid_wrap = 0
+combine_as_imports = True
