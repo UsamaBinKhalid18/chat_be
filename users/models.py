@@ -54,3 +54,26 @@ class User(AbstractUser, TimeStampedModel):
     @property
     def is_admin(self):
         return self.is_superuser or self.is_staff
+
+    def save(self, *args, **kwargs):
+        """Send activation email and create user profile."""
+        if self.pk:
+            return super().save(*args, **kwargs)
+
+        is_social_account = getattr(self, 'is_social_account', False)
+        is_staff_or_superuser = self.is_staff or self.is_superuser
+        self.is_active = True
+        self.was_activated = is_social_account or is_staff_or_superuser
+        super().save(*args, **kwargs)
+        UserProfile.objects.create(user=self)
+
+
+class UserProfile(models.Model):
+    """User profile for our custom user."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    stripe_customer_id = models.CharField(blank=True, null=True)
+
+    def __str__(self):
+        """String representation of model."""
+        return self.user.email

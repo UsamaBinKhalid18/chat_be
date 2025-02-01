@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'core',
     'users',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -188,3 +189,14 @@ FRONTEND_BASE_URL = ''
 FRONTEND_ACTIVATION_URL = '/activate'
 FRONTEND_PASSWORD_RESET_URL = '/password-reset'
 CELERY_BROKER_URL = 'redis://localhost:6379'
+
+PAYMENT_PROCESSORS = {
+    'stripe': {
+        'processor': 'payments.processors.stripe.Stripe',
+        'secret_key': '',
+        'webhook_secret_key': '',
+    }
+}
+
+FRONTEND_PAYMENT_SUCCESS_URL = ''
+FRONTEND_PAYMENT_FAILURE_URL = ''

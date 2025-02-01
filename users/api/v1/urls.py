@@ -9,7 +9,7 @@ from users.api.v1.views import (
 
 urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token-obtain-pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('<int:id>/refresh-token/', TokenRefreshView.as_view(), name='token-refresh'),
     path('activate/<uidb64>/<token>/', ActivateUserAccount.as_view(), name='activate-user-api'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('google/', GoogleLoginView.as_view(), name='google-api-login'),

@@ -54,3 +54,15 @@ SOCIALACCOUNT_PROVIDERS['google'] = {
             'access_type': 'online',
         }
     }
+
+
+PAYMENT_PROCESSORS = {
+    'stripe': {
+        'processor': 'payments.processors.stripe.Stripe',
+        'secret_key': '',
+        'webhook_secret_key': '',
+    }
+}
+
+FRONTEND_PAYMENT_SUCCESS_URL = ''
+FRONTEND_PAYMENT_FAILURE_URL = ''
