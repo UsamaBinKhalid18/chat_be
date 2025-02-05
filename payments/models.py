@@ -1,11 +1,8 @@
 """Models for payments app."""
 
-from datetime import timedelta
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
@@ -127,18 +124,19 @@ class Invoice(models.Model):
     @property
     def is_refund_allowed(self):
         """Check if refunds are allowed on this invoice."""
-        try:
-            allow_refund = self.refund == Refund.CANCELED or self.refund.status == Refund.FAILED
-        except Refund.DoesNotExist:
-            allow_refund = True
+        return False
+        # try:
+        #     allow_refund = self.refund == Refund.CANCELED or self.refund.status == Refund.FAILED
+        # except Refund.DoesNotExist:
+        #     allow_refund = True
 
-        return (
-            self.status == Invoice.PAID
-            and settings.REFUND_REQUEST_DAYS
-            and self.mode == self.SUBSCRIPTION
-            and allow_refund
-            and self.created_at + timedelta(days=settings.REFUND_REQUEST_DAYS) > timezone.now()
-        )
+        # return (
+        #     self.status == Invoice.PAID
+        #     and settings.REFUND_REQUEST_DAYS
+        #     and self.mode == self.SUBSCRIPTION
+        #     and allow_refund
+        #     and self.created_at + timedelta(days=settings.REFUND_REQUEST_DAYS) > timezone.now()
+        # )
 
     @staticmethod
     def get_from_subscription_id(subscription_id):

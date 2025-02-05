@@ -2,6 +2,8 @@
 
 from rest_framework import serializers
 
+from payments.models import Package, UserSubscription
+
 
 class PaymentModeEnum(serializers.ChoiceField):
     """Enum field for stripe payments and subscriptions."""
@@ -37,3 +39,22 @@ class StripeSerializer(serializers.Serializer):
             raise serializers.ValidationError("Package ID is required for subscription mode.")
 
         return data
+
+
+class PackageSerializer(serializers.ModelSerializer):
+    """Packages serializer."""
+
+    class Meta:
+        model = Package
+        fields = '__all__'
+
+
+class UserSubscriptionSerializer(serializers.ModelSerializer):
+    """Serialize user subscriptions."""
+
+    package = PackageSerializer()
+
+    class Meta:
+        model = UserSubscription
+        fields = '__all__'
+        read_only_fields = ('__all__', )

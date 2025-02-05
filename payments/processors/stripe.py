@@ -6,13 +6,13 @@ from datetime import datetime
 
 import stripe
 from django.contrib.auth import get_user_model
+from django.db.transaction import atomic
 
 from payments.constants import CURRENCY_NAME
 from payments.models import Invoice, Package, PaymentMethod, Refund, UserSubscription, Product
 from payments.processors.base_processor import BasePaymentProcessor
 from payments.emails import SubscriptionDeactivatedEmail
 from users.models import UserProfile
-
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
@@ -350,6 +350,7 @@ class Stripe(BasePaymentProcessor):
         subscription_deactivated_email = SubscriptionDeactivatedEmail()
         subscription_deactivated_email.send([user_profile.user.email], {'package_name': package_names})
 
+    @atomic
     def create_or_update_user_subscriptions(self, data):
         """Create or update user subscription when invoice is charged."""
         data_to_update = self.get_subscriptions_from_line_items(data.lines.data)
@@ -363,6 +364,10 @@ class Stripe(BasePaymentProcessor):
         elif data.billing_reason == 'subscription_create':
             subscriptions = []
             user_profile = UserProfile.objects.get(stripe_customer_id=data.customer)
+            for sub in user_profile.user.subscriptions.filter(is_active=True):
+                self.deactivate_subscription(
+                    user_profile.stripe_customer_id, sub.id, user_profile.user.email
+                )
             for package_id in data_to_update.keys():
                 current_period_end = datetime.fromtimestamp(data_to_update[package_id].current_period_end)
                 subscriptions.append(UserSubscription(

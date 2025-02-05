@@ -1,7 +1,9 @@
 import json
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 
-from payments.api.v1.serializers import StripeSerializer
+from payments.api.v1.serializers import StripeSerializer, UserSubscriptionSerializer
+from payments.models import UserSubscription, Invoice
 from payments.processors.stripe import Stripe
 from users.permissions import IsAuthenticatedAndActivated
 from rest_framework.response import Response
@@ -34,3 +36,35 @@ class CheckoutView(APIView):
         if 'error' in response:
             return Response({'error': 'Error while processing data.'}, status=HTTP_400_BAD_REQUEST)
         return Response({'checkout_page_url': response['checkout_page_url']}, status=HTTP_200_OK)
+
+
+class UserSubscriptionsView(APIView):
+    """List user subscriptions."""
+
+    serializer_class = UserSubscriptionSerializer
+    permission_classes = (IsAuthenticatedAndActivated,)
+
+    def get(self, request):
+        """List subscriptions for user."""
+        try:
+            subscription = get_object_or_404(UserSubscription, is_active=True, user=request.user)
+        except UserSubscription.MultipleObjectsReturned:
+            subscription = UserSubscription.objects.filter(is_active=True, user=request.user).last()
+        return Response(status=HTTP_200_OK, data=self.serializer_class(subscription).data)
+
+    def post(self, request, *args, **kwargs):
+        """Deactivate a user subscription."""
+        customer_id = request.user.profile.stripe_customer_id
+        subscription_id = request.data.get('subscription_id', '')
+
+        invoice = Invoice.get_from_subscription_id(subscription_id)
+        if not invoice:
+            return Response({'error': 'No invoice attached with subscription'}, status=HTTP_400_BAD_REQUEST)
+        payment_processor = Stripe()
+        try:
+            payment_processor.call_method('deactivate_subscription', customer_id, subscription_id, request.user.email)
+        except ValueError as error:
+            return Response({'error': error}, status=HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'success'}, status=HTTP_200_OK)
+    

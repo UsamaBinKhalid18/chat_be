@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -133,6 +134,8 @@ REST_AUTH = {
 
 SIMPLE_JWT = {
     'TOKEN_OBTAIN_SERIALIZER': 'users.api.v1.serializers.LoginSerializer',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 AUTH_USER_MODEL = 'users.User'
