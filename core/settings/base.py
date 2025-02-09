@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'core',
     'users',
     'payments',
+    'chat_completion',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -203,3 +205,6 @@ PAYMENT_PROCESSORS = {
 
 FRONTEND_PAYMENT_SUCCESS_URL = ''
 FRONTEND_PAYMENT_FAILURE_URL = ''
+GEMINI_API_KEY = ''
+OPENAI_API_KEY = ''
+ANTHROPIC_API_KEY = ''
