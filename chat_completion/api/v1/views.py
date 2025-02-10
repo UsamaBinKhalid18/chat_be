@@ -28,7 +28,7 @@ class ChatCompletionView(APIView):
             return request.META.get("HTTP_CONNECTION") == "close"
 
         # 🔹 Gemini 1.5 Pro
-        if model == 'Google Gemini 1.5 Pro':
+        if model == 'Google Gemini 1.5':
             client = genai.Client(api_key=settings.GEMINI_API_KEY)
             gemini_messages = [
                 {"role": 'user' if msg['isUser'] else 'assistant', "parts": [{"text": msg['text']}]}
