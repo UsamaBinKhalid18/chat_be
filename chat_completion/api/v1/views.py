@@ -28,7 +28,7 @@ class ChatCompletionView(APIView):
             return request.META.get("HTTP_CONNECTION") == "close"
 
         # 🔹 Gemini 1.5 Pro
-        if model == 'Gemini 1.5 Pro':
+        if model == 'Google Gemini 1.5 Pro':
             client = genai.Client(api_key=settings.GEMINI_API_KEY)
             gemini_messages = [
                 {"role": 'user' if msg['isUser'] else 'assistant', "parts": [{"text": msg['text']}]}
@@ -54,7 +54,7 @@ class ChatCompletionView(APIView):
             for msg in messages
         ]
 
-        if model in ['GPT 4o Mini', 'GPT 4o']:
+        if model in ['OpenAI GPT 4o Mini', 'OpenAI GPT 4o']:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
             def openai_event_stream():
@@ -76,7 +76,7 @@ class ChatCompletionView(APIView):
             return StreamingHttpResponse(openai_event_stream(), content_type='text/plain')
 
         # 🔹 Claude 3.5 Sonnet
-        if model == 'Claude 3.5 Sonnet':
+        if model == 'Anthropic Claude 3.5 Sonnet':
             client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
             def claude_event_stream():
