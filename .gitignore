@@ -52,3 +52,6 @@ Icon
 # custom
 pyenv/
 /.idea/
+
+# uploaded files
+files/

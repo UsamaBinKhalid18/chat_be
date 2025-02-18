@@ -36,7 +36,6 @@ class PaymentResponseWebhook(View):
 
         event_id = event.id
         self.payment_processor.event = event.type
-        print(event.type)
 
         if event.type == 'payment_method.attached':
             payment_method = event.data.object
