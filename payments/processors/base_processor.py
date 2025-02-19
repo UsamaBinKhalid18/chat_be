@@ -35,9 +35,9 @@ class BasePaymentProcessor(ABC):
         self.failure_url = reverse_lazy(self.failure_url_name)
 
         if settings.FRONTEND_PAYMENT_SUCCESS_URL:
-            self.success_url = f'{settings.FRONTEND_BASE_URL}{settings.FRONTEND_PAYMENT_SUCCESS_URL}'
+            self.success_url = f'{settings.FRONTEND_PAYMENT_SUCCESS_URL}'
         if settings.FRONTEND_PAYMENT_FAILURE_URL:
-            self.failure_url = f'{settings.FRONTEND_BASE_URL}{settings.FRONTEND_PAYMENT_FAILURE_URL}'
+            self.failure_url = f'{settings.FRONTEND_PAYMENT_FAILURE_URL}'
 
     def call_method(self, name, *args, **kwargs):
         """Use this method to call another method only if it exists."""
