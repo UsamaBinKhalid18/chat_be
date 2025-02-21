@@ -6,7 +6,6 @@ from django.conf import settings
 from openai import OpenAI
 from anthropic import Anthropic
 import logging
-import sys
 import base64
 
 
@@ -33,9 +32,6 @@ class ChatCompletionView(APIView):
                 file = FileUpload.objects.filter(uuid=msg['fileId']).first()
                 if file:
                     msg['file'] = file
-
-        def client_disconnected():
-            return request.META.get("HTTP_CONNECTION") == "close"
 
         # 🔹 Gemini 1.5 Pro
         if model == 'Google Gemini 1.5':
@@ -64,10 +60,9 @@ class ChatCompletionView(APIView):
                 try:
                     response = client.models.generate_content_stream(model='gemini-2.0-flash', contents=gemini_messages)
                     for chunk in response:
-                        if client_disconnected():
-                            logger.info("Client disconnected, stopping Gemini stream.")
-                            sys.exit(0)  # Hard stop
                         yield chunk.text
+                except GeneratorExit:
+                    logger.info("Client disconnected, stopping Gemini stream.")
                 except Exception as e:
                     logger.error(f"Gemini streaming error: {e}")
                     yield "Couldn't get a response. If this persists, please contact support."
@@ -98,11 +93,10 @@ class ChatCompletionView(APIView):
                         stream=True
                     )
                     for chunk in response:
-                        if client_disconnected():
-                            logger.info("Client disconnected, stopping OpenAI stream.")
-                            response.close()  # Attempt to stop OpenAI request
-                            break
                         yield chunk.choices[0].delta.content or ""
+                except GeneratorExit:
+                    logger.info("Client disconnected, stopping OpenAI stream.")
+                    response.close()
                 except Exception as e:
                     logger.error(f"OpenAI streaming error: {e}")
                     yield "Couldn't get a response. If this persists, please contact support."
@@ -142,11 +136,10 @@ class ChatCompletionView(APIView):
                         model="claude-3-5-sonnet-latest",
                     ) as stream:
                         for text in stream.text_stream:
-                            if client_disconnected():
-                                logger.info("Client disconnected, stopping Claude stream.")
-                                stream.close()  # Official stop method
-                                break
                             yield text
+                except GeneratorExit:
+                    logger.info("Client disconnected, stopping Claude stream.")
+                    stream.close()
                 except Exception as e:
                     logger.error(f"Claude streaming error: {e}")
                     yield "Couldn't get a response. If this persists, please contact support."
