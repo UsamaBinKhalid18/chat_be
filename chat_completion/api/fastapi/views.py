@@ -1,4 +1,3 @@
-import asyncio
 import base64
 import logging
 from typing import List, Optional
@@ -55,8 +54,7 @@ class ChatRequest(BaseModel):
     model: str
 
 
-# @chat_router.post("/chat-completion/", dependencies=[Depends(decode_token)])
-@chat_router.post("/chat-completion/", )
+@chat_router.post("/chat-completion/", dependencies=[Depends(decode_token)])
 async def read_root(data: ChatRequest):
     model = data.model
     messages = data.messages
