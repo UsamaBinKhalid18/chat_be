@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 from django.core.asgi import get_asgi_application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,15 +11,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_django_project.settings')
 
 django_app = get_asgi_application()
 
-
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-]
-
 fastapp.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
