@@ -1,17 +1,41 @@
-"""
-ASGI config for chatapp project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
-"""
-
 import os
-
 from django.core.asgi import get_asgi_application
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+fastapp = FastAPI()
 
-application = get_asgi_application()
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_django_project.settings')
+
+django_app = get_asgi_application()
+
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+fastapp.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Do not move this import to the top of the file
+# to avoid circular import issues
+
+from chat_completion.api.fastapi.views import chat_router  # noqa isort:skip E402
+
+fastapp.include_router(chat_router)
+
+
+# Mount FastAPI app under a specific path (e.g., /api/fastapi)
+app = FastAPI()
+app.mount("/api/fastapi", fastapp)
+app.mount("/", django_app)
+
+# Optionally serve static files (if needed)
+# app.mount("/static", StaticFiles(directory="static"), name="static")
