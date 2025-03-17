@@ -356,11 +356,17 @@ class Stripe(BasePaymentProcessor):
         data_to_update = self.get_subscriptions_from_line_items(data.lines.data)
         if data.billing_reason == 'subscription_cycle':
             subscriptions = UserSubscription.objects.filter(package__stripe_price_id__in=data_to_update.keys())
-            for subscription in subscriptions:
-                time_stamp = data_to_update[subscription.package.stripe_price_id].current_period_end
-                subscription.current_period_end = datetime.fromtimestamp(time_stamp)
-                subscription.is_active = True
-            UserSubscription.objects.bulk_update(subscriptions)
+            if subscriptions:
+                for subscription in subscriptions:
+                    time_stamp = data_to_update[subscription.package.stripe_price_id].current_period_end
+                    subscription.current_period_end = datetime.fromtimestamp(time_stamp)
+                    subscription.is_active = True
+                UserSubscription.objects.bulk_update(subscriptions)
+            else:
+                logger.warning(
+                    f'No subscriptions found for user with stripe ID '
+                    f'{data.customer if hasattr(data, "customer") else ""} data: {data}'
+                )
         elif data.billing_reason == 'subscription_create':
             subscriptions = []
             user_profile = UserProfile.objects.get(stripe_customer_id=data.customer)
