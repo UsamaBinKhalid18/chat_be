@@ -54,6 +54,16 @@ class ChatRequest(BaseModel):
     model: str
 
 
+MODEL_MAP = {
+    'gpt-4': 'gpt-4',
+    'gpt-4o': 'gpt-4o',
+    'gpt-4o-mini': 'gpt-4o-mini',
+    'gpt-o3-mini': 'o3-mini',
+    'gpt-o3-mini-high': 'o3-mini-high',
+    'deepseek': 'deepseek-chat',
+}
+
+
 @chat_router.post("/chat-completion/", dependencies=[Depends(decode_token)])
 async def read_root(data: ChatRequest):
     model = data.model
@@ -68,7 +78,7 @@ async def read_root(data: ChatRequest):
             if file:
                 msg.file = file
 
-    if model == 'Google Gemini 1.5':
+    if model == 'gemini':
         # 🔹 Gemini 1.5 Pro
         client = genai.Client(api_key=settings.GEMINI_API_KEY).aio
         gemini_messages = [
@@ -106,8 +116,11 @@ async def read_root(data: ChatRequest):
 
         return StreamingResponse(gemini_event_stream())
 
-    if model in ['OpenAI GPT 4o Mini', 'OpenAI GPT 4o']:
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+    if 'gpt' in model or model == 'deepseek':
+        if model == 'deepseek':
+            client = AsyncOpenAI(api_key=settings.DEEPSEEK_API_KEY, base_url='https://api.deepseek.com')
+        else:
+            client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
         openai_messages = [
             {
                 "role": 'user' if msg.isUser else 'assistant',
@@ -125,7 +138,7 @@ async def read_root(data: ChatRequest):
         async def openai_event_stream():
             try:
                 response = await client.chat.completions.create(
-                    model="gpt-4o-mini" if model == "GPT 4o Mini" else "gpt-4o",
+                    model=MODEL_MAP[model],
                     messages=openai_messages,
                     stream=True
                 )
@@ -141,7 +154,7 @@ async def read_root(data: ChatRequest):
 
         return StreamingResponse(openai_event_stream())
 
-    if model == 'Anthropic Claude':
+    if model == 'claude':
         anthropic_messages = [
             {
                 "role": 'user' if msg.isUser else 'assistant',
@@ -171,7 +184,7 @@ async def read_root(data: ChatRequest):
                 async with client.messages.stream(
                     max_tokens=1024,
                     messages=anthropic_messages,
-                    model="claude-3-5-sonnet-latest",
+                    model="claude-3-7-sonnet-latest",
                 ) as stream:
                     async for text in stream.text_stream:
                         yield text
