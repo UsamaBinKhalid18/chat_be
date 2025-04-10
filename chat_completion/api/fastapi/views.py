@@ -15,6 +15,8 @@ from chat_completion.models import FileUpload
 from payments.models import UserSubscription
 from google import genai
 
+from users.models import UserProfile
+
 
 chat_router = APIRouter()
 
@@ -36,7 +38,12 @@ async def decode_token(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
         is_subscribed = await UserSubscription.objects.filter(user_id=user_id, is_active=True).aexists()
         if not is_subscribed:
-            raise HTTPException(status_code=403, detail="No subscripton")
+            profile = await UserProfile.objects.aget(user_id=user_id)
+            if profile.free_requests <= 0:
+                raise HTTPException(status_code=403, detail="No subscripton")
+            else:
+                profile.free_requests -= 1
+                await profile.asave()
     except jwt.InvalidTokenError:
         raise credentials_exception
 

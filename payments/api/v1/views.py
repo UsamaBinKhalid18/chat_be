@@ -1,4 +1,5 @@
 import json
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 
@@ -67,4 +68,13 @@ class UserSubscriptionsView(APIView):
             return Response({'error': error}, status=HTTP_400_BAD_REQUEST)
 
         return Response({'status': 'success'}, status=HTTP_200_OK)
-    
+
+
+class GetRemainingFreeRequests(APIView):
+    """Get remaining free requests for user."""
+
+    permission_classes = [IsAuthenticatedAndActivated]
+
+    def get(self, request, *args, **kwargs):
+        """Get free requests for user."""
+        return JsonResponse({'remaining_requests': request.user.profile.free_requests}, status=HTTP_200_OK)

@@ -73,6 +73,7 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     stripe_customer_id = models.CharField(blank=True, null=True)
+    free_requests = models.PositiveSmallIntegerField(default=2)
 
     def __str__(self):
         """String representation of model."""
