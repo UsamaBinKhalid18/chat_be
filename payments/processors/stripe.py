@@ -361,7 +361,7 @@ class Stripe(BasePaymentProcessor):
                     time_stamp = data_to_update[subscription.package.stripe_price_id].current_period_end
                     subscription.current_period_end = datetime.fromtimestamp(time_stamp)
                     subscription.is_active = True
-                UserSubscription.objects.bulk_update(subscriptions)
+                UserSubscription.objects.bulk_update(subscriptions, fields=['current_period_end', 'is_active'])
             else:
                 logger.warning(
                     f'No subscriptions found for user with stripe ID '
