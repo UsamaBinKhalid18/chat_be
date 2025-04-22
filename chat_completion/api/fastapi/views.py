@@ -158,7 +158,7 @@ async def read_root(data: ChatRequest):
                             if (file := msg.file) and 'image' not in file.content_type else [])
                     ]
                 }
-                async for msg in messages
+                for msg in messages
             ]
 
         async def openai_event_stream():
