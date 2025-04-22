@@ -128,7 +128,7 @@ async def read_root(data: ChatRequest):
             client = AsyncOpenAI(api_key=settings.DEEPSEEK_API_KEY, base_url='https://api.deepseek.com')
             # For DeepSeek, flatten the content to a simple string
             openai_messages = []
-            async for msg in messages:
+            for msg in messages:
                 content_parts = [msg.text]
                 if (file := msg.file):
                     if 'image' in file.content_type:
