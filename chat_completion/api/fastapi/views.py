@@ -126,21 +126,40 @@ async def read_root(data: ChatRequest):
     if 'gpt' in model or model == 'deepseek':
         if model == 'deepseek':
             client = AsyncOpenAI(api_key=settings.DEEPSEEK_API_KEY, base_url='https://api.deepseek.com')
+            # For DeepSeek, flatten the content to a simple string
+            openai_messages = []
+            async for msg in messages:
+                content_parts = [msg.text]
+                if (file := msg.file):
+                    if 'image' in file.content_type:
+                        content_parts.append(f"[User uploaded an image: {file.file.url}]")
+                    else:
+                        try:
+                            file_content = base64.b64encode(msg.file.file.read()).decode("utf-8")
+                            content_parts.append(f"[File content: {file_content}, mime_type: {file.content_type}]")
+                        except Exception as e:
+                
+                            content_parts.append(f"[Could not read file: {str(e)}]")
+                
+                openai_messages.append({
+                    "role": 'user' if msg.isUser else 'assistant',
+                    "content": "\n".join(content_parts)  # Combine text + file info
+                })
         else:
             client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        openai_messages = [
-            {
-                "role": 'user' if msg.isUser else 'assistant',
-                "content": [
-                    {"type": "text", "text": msg.text},
-                    *([{"type": "image_url", "image_url": {'url': f'{settings.BASE_URL}{file.file.url}'}}]
-                        if ((file := msg.file) and 'image' in file.content_type) else []),
-                    *([{'type': 'text', 'text': f'user uploaded a file file content in bytes: {str(file.file.read())}'}]
-                        if (file := msg.file) and 'image' not in file.content_type else [])
-                ]
-            }
-            for msg in messages
-        ]
+            openai_messages = [
+                {
+                    "role": 'user' if msg.isUser else 'assistant',
+                    "content": [
+                        {"type": "text", "text": msg.text},
+                        *([{"type": "image_url", "image_url": {'url': f'{settings.BASE_URL}{file.file.url}'}}]
+                            if ((file := msg.file) and 'image' in file.content_type) else []),
+                        *([{'type': 'text', 'text': f'user uploaded a file file content in bytes: {str(file.file.read())}'}]
+                            if (file := msg.file) and 'image' not in file.content_type else [])
+                    ]
+                }
+                async for msg in messages
+            ]
 
         async def openai_event_stream():
             try:

@@ -136,7 +136,7 @@ REST_AUTH = {
 
 SIMPLE_JWT = {
     'TOKEN_OBTAIN_SERIALIZER': 'users.api.v1.serializers.LoginSerializer',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
@@ -190,7 +190,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
-FROM_EMAIL_ADDRESS = 'noreply@chatapp.com'
+FROM_EMAIL_ADDRESS = 'Chatify AI <noreply@chatifyai.app>'
 ACTIVATION_EMAIL_TOKEN_EXPIRY_TIME = 6000
 FRONTEND_BASE_URL = ''
 FRONTEND_ACTIVATION_URL = '/activate'
