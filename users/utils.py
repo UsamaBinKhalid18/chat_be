@@ -57,3 +57,9 @@ def create_auth_data(user):
         'refresh': str(tokens),
         'user': user_data
     }
+
+
+def get_time_now():
+    """Get current time."""
+    from django.utils import timezone
+    return timezone.now()

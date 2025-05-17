@@ -1,5 +1,7 @@
+
 import json
 from django.http import JsonResponse
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 
@@ -77,4 +79,8 @@ class GetRemainingFreeRequests(APIView):
 
     def get(self, request, *args, **kwargs):
         """Get free requests for user."""
+        profile = request.user.profile
+        if profile.last_free_request_at.date() != timezone.now().date():
+            profile.free_requests = 3
+            profile.save()
         return JsonResponse({'remaining_requests': request.user.profile.free_requests}, status=HTTP_200_OK)

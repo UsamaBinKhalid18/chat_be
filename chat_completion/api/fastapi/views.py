@@ -4,6 +4,7 @@ from typing import List, Optional
 from anthropic import AsyncAnthropic
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.utils import timezone
 from fastapi import APIRouter, Body, Depends, HTTPException, status, UploadFile
 from fastapi.security import OAuth2PasswordBearer
 import jwt
@@ -43,6 +44,7 @@ async def decode_token(token: str = Depends(oauth2_scheme)):
                 raise HTTPException(status_code=403, detail="No subscripton")
             else:
                 profile.free_requests -= 1
+                profile.last_free_request_at = timezone.now()
                 await profile.asave()
     except jwt.InvalidTokenError:
         raise credentials_exception
